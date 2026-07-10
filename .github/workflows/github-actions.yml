@@ -13,10 +13,13 @@ jobs:
         steps:
           - uses: actions/checkout@v4
             with:
-                submodules: recursive
                 fetch-depth: 0
           - name: Checkout submodules
             run: |
+                # Self-hosted runner reuses the workspace; wipe any stale/corrupt
+                # cached submodule state before a fresh, full (non-shallow) clone.
+                git submodule deinit -f --all || true
+                rm -rf .git/modules/assignment-autotest .git/modules/buildroot
                 git submodule sync --recursive
                 git submodule update --init --recursive --force
           - uses: webfactory/ssh-agent@v0.5.3
